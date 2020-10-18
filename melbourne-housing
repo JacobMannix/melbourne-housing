@@ -1,0 +1,438 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.8.3-final"
+    },
+    "orig_nbformat": 2,
+    "kernelspec": {
+      "name": "Python 3.8.3 64-bit ('base': conda)",
+      "display_name": "Python 3.8.3 64-bit ('base': conda)",
+      "metadata": {
+        "interpreter": {
+          "hash": "33816baf1deb620a5272f8e4a78d97120956c9cf2b3ef41c63edb0c86b1912c5"
+        }
+      }
+    },
+    "colab": {
+      "name": "MLFAB-exercise.ipynb",
+      "provenance": []
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "c54dku34Ruj1"
+      },
+      "source": [
+        "# Melbourne Housing Market\n",
+        "Machine Learning Practice\n",
+        "Algorithms used:\n",
+        "- Gradient Boost Regressor"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "v-stJuR6SIiH"
+      },
+      "source": [
+        "## Import Dependencies"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "iY36XGJY4JmP"
+      },
+      "source": [
+        "# Import dependencies\n",
+        "import pandas as pd\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn import ensemble\n",
+        "from sklearn.metrics import mean_absolute_error\n",
+        "# from sklearn.externals import joblib\n",
+        "import joblib\n",
+        "from sklearn.model_selection import GridSearchCV"
+      ],
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "yRSbNbytViw9"
+      },
+      "source": [
+        "## Read in data from csv\n",
+        "https://www.kaggle.com/anthonypino/melbourne-housing-market"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 4,
+      "metadata": {},
+      "outputs": [],
+      "source": [
+        "url = 'https://s3.us-west-2.amazonaws.com/secure.notion-static.com/7d63666c-548b-4d0e-a443-e72ccb674aff/Melbourne_housing_FULL.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAT73L2G45O3KS52Y5%2F20201017%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20201017T150523Z&X-Amz-Expires=86400&X-Amz-Signature=0e872ff79ada6bff43104ef5f8158331b38d7fb8d70e9499514676b407d6f1bb&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Melbourne_housing_FULL.csv%22'"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "cpciCc794JmS"
+      },
+      "source": [
+        "df = pd.read_csv(url)"
+      ],
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "sdBJ8KKe4JmU"
+      },
+      "source": [
+        "# Preview data\n",
+        "# df.head()"
+      ],
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Kzsw-31TWDjd"
+      },
+      "source": [
+        "## Clean Data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "iUmOj0cuWGJV"
+      },
+      "source": [
+        "### Delete unneeded columns"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "5Vr9hfbI4JmX"
+      },
+      "source": [
+        "list = ('Address', 'Method', 'SellerG', 'Date', 'Postcode', 'Lattitude', 'Longtitude', 'Regionname', 'Propertycount')\n",
+        "for col in list:\n",
+        "    del df[col]"
+      ],
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "372H50V8WKXT"
+      },
+      "source": [
+        "### Remove rows with missing values"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "B0747Wlx4Jmb"
+      },
+      "source": [
+        "df.dropna(axis=0, how='any', thresh=None, subset=None, inplace=True)"
+      ],
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "8CUYtG-aWNrI"
+      },
+      "source": [
+        "### Convert non-numerical data using one-hot encoding"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "6cNLIy6s4Jmf"
+      },
+      "source": [
+        "features_df = pd.get_dummies(df, columns = ['Suburb', 'CouncilArea', 'Type'])"
+      ],
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "R9AH8FsG4Jmi"
+      },
+      "source": [
+        "del features_df['Price']"
+      ],
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "csz_IaCoXoE7"
+      },
+      "source": [
+        "## Prepare data for model"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "X4_747VzWS_s"
+      },
+      "source": [
+        "### Create X and y arrays from the dataset"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "CuyKcShW4Jml"
+      },
+      "source": [
+        "X = features_df.values\n",
+        "y = df['Price'].values"
+      ],
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "nGBIhwdLWV-u"
+      },
+      "source": [
+        "### Split data into test/train set (70/30 split) and shuffle"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "AuXEKqHD4Jmn"
+      },
+      "source": [
+        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 0)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "HswJYyiW4Jmp"
+      },
+      "source": [
+        "## Regular Model"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "-_waBM0a4Jmr"
+      },
+      "source": [
+        "# Setting up model\n",
+        "# model = ensemble.GradientBoostingRegressor(\n",
+        "#     n_estimators=250,\n",
+        "#     learning_rate=0.1,\n",
+        "#     max_depth=5,\n",
+        "#     min_samples_split=4,\n",
+        "#     min_samples_leaf=6,\n",
+        "#     max_features=0.6,\n",
+        "#     loss='huber'\n",
+        "# )"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "VGtW7WgQ4Jmu"
+      },
+      "source": [
+        "# Run model on training data\n",
+        "# model.fit(X_train, y_train)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ynwkEOxr4Jmx"
+      },
+      "source": [
+        "# Save Model to file\n",
+        "# joblib.dump(model, 'models/trained_model.pkl')"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Ri1TH2bK4Jm1"
+      },
+      "source": [
+        "## Grid Search"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Qvbsn29_WlrA"
+      },
+      "source": [
+        "### Define model"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "WAU89FQ7WoC4"
+      },
+      "source": [
+        "### Setup grid search"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "N_COsBoQ4Jm1"
+      },
+      "source": [
+        "# Setting up Grid Search\n",
+        "model = ensemble.GradientBoostingRegressor()\n",
+        "\n",
+        "param_grid = {\n",
+        "    'n_estimators': [300,600,1000],\n",
+        "    'learning_rate': [0.01,0.02,0.6,0.7],\n",
+        "    'max_depth': [7,9,11],\n",
+        "    'min_samples_split': [3,4,5],\n",
+        "    'min_samples_leaf': [5,6,7],\n",
+        "    'max_features': [0.8, 0.9],\n",
+        "    'loss': ['ls','lad','huber']\n",
+        "}"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_pofWzPGW9nc"
+      },
+      "source": [
+        "### Define Grid Search\n",
+        "Run with four CPUs in parallel if applicable."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "d2Q68foG4Jm3"
+      },
+      "source": [
+        "gs_cv = GridSearchCV(model, param_grid, n_jobs=4)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "sUDhk16lXBQX"
+      },
+      "source": [
+        "### Run grid search on training data"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "uP-uuuqc4Jm5"
+      },
+      "source": [
+        "# Run grid search on training data\n",
+        "gs_cv.fit(X_train, y_train)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "BxklHdekXEwb"
+      },
+      "source": [
+        "### Print optimal hyperparameters"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "eBAsMR8r4Jm9"
+      },
+      "source": [
+        "# Print optimal hyperparameters\n",
+        "print(gs_cv.best_params_)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "qkYJnEiTXYFo"
+      },
+      "source": [
+        "### Check model accuracy\n",
+        "(2 decimal places)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NMc5uog54Jm_"
+      },
+      "source": [
+        "# Check model accuracy (2 decimal places)\n",
+        "mse_train = mean_absolute_error(y_train, gs_cv.predict(X_train))\n",
+        "print('Training Set Mean Absolute Error: ${:,.2f}'.format(mse_train))\n",
+        "\n",
+        "mse_test = mean_absolute_error(y_test, gs_cv.predict(X_test))\n",
+        "print('Test Set Mean Absolute Error: ${:,.2f}'.format(mse_test))"
+      ],
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
