@@ -5,11 +5,12 @@
 [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1AGS7ZMkWMH8VFUdb58CqxaGYIgD1v7pn?usp=sharing)
 [![](https://img.shields.io/badge/Link-Dataset-informational?style=flat&logo=link&logoColor=white&color=d59373)](https://raw.githubusercontent.com/JacobMannix/melbourne-housing/main/data/Melbourne_housing_FULL.csv)
 
-> <b> DESCRIPTION </b>
+> <b> Using the Melbourne Housing Dataset to predict the sale price of houses using machine learning techniques in python. </b>
 
 #
-### HEADING
+### Algorithms used
+#### Gradient Boosting Regressor
 ```python
-code
-
+Training Set Mean Absolute Error: $112,816.69
+Test Set Mean Absolute Error: $155,261.10
 ```
