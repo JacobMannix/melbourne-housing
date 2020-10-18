@@ -14,3 +14,4 @@
 Training Set Mean Absolute Error: $112,816.69
 Test Set Mean Absolute Error: $155,261.10
 ```
+not great lol
